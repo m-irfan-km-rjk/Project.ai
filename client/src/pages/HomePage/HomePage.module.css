@@ -1,0 +1,78 @@
+.homePage {
+    height: 100vh;
+    background-color: #1a1a1a; /* fallback */
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    flex-direction: column;
+    color: var(--text-light);
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+
+/* Glassmorphism Navbar */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+    background: rgba(255, 255, 255, 0.1); /* softer glass */
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border-radius: 12px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+    position: sticky;
+    top: 20px; /* subtle spacing from top */
+    margin: 10px 20px;
+    z-index: 100;
+}
+
+/* Navbar title */
+.header h1 {
+    color: white;
+    font-size: 2rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+/* Sign in button */
+.signInButton {
+    padding: 10px 25px;
+    background-color: rgba(255, 255, 255, 0.2);
+    border: 2px solid white;
+    color: white;
+    border-radius: 20px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s, color 0.3s, transform 0.2s ease;
+}
+
+.signInButton:hover {
+    background-color: white;
+    color: #1a1a1a;
+    transform: scale(1.05);
+}
+
+/* Main content area */
+.mainContent {
+    flex-grow: 1;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 50px;
+}
+
+.descriptionBox {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    padding: 30px;
+    border-radius: 20px;
+    max-width: 800px;
+    text-align: center;
+    line-height: 1.6;
+    color: white;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}

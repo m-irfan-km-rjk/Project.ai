@@ -1,0 +1,104 @@
+.dashboard {
+    display: flex;
+}
+
+.mainContent {
+    flex-grow: 1;
+    padding: 40px;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.contentGrid {
+    display: flex;
+    gap: 30px;
+    margin-top: 20px;
+}
+
+.leftColumn {
+    flex: 3;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.rightColumn {
+    flex: 1;
+}
+
+.card {
+    background-color: var(--card-light);
+    color: var(--text-dark);
+    padding: 30px;
+    border-radius: 20px;
+}
+
+.card h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.todoList {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.todoList li {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.todoIcon {
+    background-color: #d0d0d0;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2rem;
+}
+
+/* Status Card and Progress Circle */
+.statusCard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.progressContainer {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin-top: 20px;
+}
+
+.progressText {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: var(--primary-blue);
+}
+
+.circleBackground,
+.circleProgress {
+    fill: none;
+}
+
+.circleBackground {
+    stroke: #ddd;
+}
+
+.circleProgress {
+    stroke: var(--primary-blue);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: stroke-dashoffset 0.5s ease-out;
+}

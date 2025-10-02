@@ -1,0 +1,33 @@
+.dashboard {
+    display: flex;
+}
+
+.mainContent {
+    flex-grow: 1;
+    padding: 40px;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.mainContent h2 {
+    margin-bottom: 30px;
+}
+
+.projectsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 30px;
+}
+
+.projectCard {
+    background-color: var(--card-light);
+    height: 200px;
+    border-radius: 15px;
+    /* Add hover effects, etc. */
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.projectCard:hover {
+    transform: translateY(-5px);
+}

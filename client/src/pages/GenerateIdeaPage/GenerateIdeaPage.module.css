@@ -1,0 +1,84 @@
+.dashboard {
+    display: flex;
+}
+
+.mainContent {
+    flex-grow: 1;
+    padding: 40px;
+    height: 100vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Initial Prompt View */
+.promptContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1;
+}
+
+.inputWrapper {
+    position: relative;
+    width: 60%;
+}
+
+.inputWrapper input {
+    width: 100%;
+    padding: 20px 60px 20px 20px;
+    border-radius: 30px;
+    border: none;
+    background-color: var(--background-dark-accent);
+    color: var(--text-light);
+    font-size: 1.1rem;
+}
+
+.inputWrapper button {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background-color: var(--primary-blue);
+    color: white;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Ideas List View */
+.ideasContainer {
+    width: 100%;
+}
+
+.ideasContainer h2 {
+    margin-bottom: 20px;
+    font-weight: normal;
+    color: #bdc3c7;
+}
+
+.ideasBox {
+    background-color: var(--card-light);
+    color: var(--text-dark);
+    padding: 30px;
+    border-radius: 20px;
+}
+
+.ideasBox h3 {
+    margin-top: 0;
+}
+
+.ideasBox ul {
+    list-style: none;
+    padding: 0;
+}
+
+.ideasBox li {
+    font-size: 1.1rem;
+    line-height: 2;
+}
