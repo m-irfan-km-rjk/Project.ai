@@ -10,29 +10,6 @@ const bcrypt = require('bcrypt');
 
 app.use(express.json());
 app.use(cors());
-
-const PORT = process.env.PORT || 3000;
-
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('MongoDB connected'))
-  .catch(err => console.error('MongoDB connection error:', err));
-
-const userSchema = joi.object({
-  username: joi.string().alphanum().min(5).max(30).required(),
-  password: joi.string().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')).required(),
-  email: joi.string().email().required(),
-  phone: joi.string().pattern(new RegExp('^[0-9]{10}$')).required()
-});
-
-function validateBody(schema) {
-  return (req, res, next) => {
-    const { error, value } = schema.validate(req.body, { abortEarly: false });
-    if (error) return next(error);
-    req.body = value;
-    next();
-  };
-}
-
 app.use((err, req, res, next) => {
   if (err.isJoi) {
     return res.status(400).json({
@@ -67,6 +44,28 @@ app.use((err, req, res, next) => {
   });
 });
 
+const PORT = process.env.PORT || 3000;
+
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('MongoDB connected'))
+  .catch(err => next(err));
+
+const userSchema = joi.object({
+  username: joi.string().alphanum().min(5).max(30).required(),
+  password: joi.string().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')).required(),
+  email: joi.string().email().required(),
+  phone: joi.string().pattern(new RegExp('^[0-9]{10}$')).required()
+});
+
+function validateBody(schema) {
+  return (req, res, next) => {
+    const { error, value } = schema.validate(req.body, { abortEarly: false });
+    if (error) return next(error);
+    req.body = value;
+    next();
+  };
+}
+
 app.post('/api/generate-ideas', async (req, res) => {
   const { prompt } = req.body;
   const apiKey = process.env.GEMINI_API_KEY;
@@ -94,7 +93,7 @@ app.post('/api/generate-ideas', async (req, res) => {
     res.json(JSON.parse(response.data.candidates[0].content.parts[0].text));
   } catch (error) {
     console.error('Error fetching from Gemini API:', error);
-    res.status(500).json({ error: 'Error fetching from Gemini API' });
+    next(error);
   }
 });
 
@@ -138,7 +137,7 @@ app.post('/api/idea', async (req, res) => {
     console.log("done");
   } catch (error) {
     console.error('Error fetching from Gemini API:', error);
-    res.status(500).json({ error: 'Error fetching from Gemini API' });
+    next(error);
   }
 });
 
@@ -146,24 +145,25 @@ const User = require("./models/User");
 const Project = require("./models/Projects");
 app.use(express.json());
 
-app.post("/api/login", async (req, res) => {
-  const { username, password } = req.body;
-
+app.post("/api/login", async (req, res, next) => {
   try {
-    const user = await User.findOne({ username });
+    const { username, password } = req.body;
 
+    const user = await User.findOne({ username });
     if (!user) {
       return res.status(401).json({ success: false, message: "User not found" });
     }
 
-    if (user.password !== password) {
+    // Compare plain password with hashed password in DB
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
       return res.status(401).json({ success: false, message: "Invalid password" });
     }
 
-    res.json({ success: true, message: "Login successful" });
+    res.json({ success: true, message: "Login successful", userId: user._id });
   } catch (err) {
     console.error("Login error:", err);
-    next(err);
+    next(err); // pass to centralized error handler
   }
 });
 
@@ -176,7 +176,7 @@ app.post("/api/register", validateBody(userSchema), async (req, res, next) => {
     const newUser = new User({ username, password: hashedPassword, email, phone });
     await newUser.save();
 
-    res.json({ success: true, message: "User registered successfully" });
+    res.json({ success: true, message: "User registered successfully", userId: newUser._id });
   } catch (err) {
     next(err);
   }
@@ -207,6 +207,110 @@ app.post("/api/projects/create", async (req, res, next) => {
       project: newProject
     });
 
+  } catch (err) {
+    next(err);
+  }
+});
+
+app.get("/api/user/projects", async (req, res, next) => {
+  try {
+    const userId = req.headers["userid"];
+    const user = await User.findById(userId).populate('projects');
+    if (!user) {
+      return res.status(404).json({
+        status: "error",
+        type: "not_found",
+        message: "User not found"
+      });
+    }
+    res.json({
+      status: "success",
+      projects: user.projects
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+app.get("/api/projects/:projectId", async (req, res, next) => {
+  try {
+    const { projectId } = req.params;       // projectId from URL params
+    const userId = req.headers["userid"];   // userId from headers
+
+    if (!userId) {
+      return res.status(400).json({
+        status: "error",
+        type: "bad_request",
+        message: "UserId header is required"
+      });
+    }
+
+    // 1. Check if user exists
+    const userCheck = await User.findById(userId);
+    if (!userCheck) {
+      return res.status(404).json({
+        status: "error",
+        type: "not_found",
+        message: "User not found"
+      });
+    }
+
+    // 2. Check if project belongs to user
+    const hasAccess = userCheck.projects.some(
+      (proj) => proj.toString() === projectId
+    );
+
+    if (!hasAccess) {
+      return res.status(403).json({
+        status: "error",
+        type: "forbidden",
+        message: "You do not have access to this project"
+      });
+    }
+
+    // 3. Fetch project
+    const project = await Project.findById(projectId).populate("steps");
+    if (!project) {
+      return res.status(404).json({
+        status: "error",
+        type: "not_found",
+        message: "Project not found"
+      });
+    }
+
+    res.json({
+      status: "success",
+      project
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+app.post("/api/projects/:projectId/steps/add", async (req, res, next) => {
+  try {
+    const { projectId } = req.params;
+    const { stepNumber, title, description, resources } = req.body;
+    const Project = require("./models/Projects");
+    const Step = require("./models/Steps");
+    const project = await Project.findById(projectId);
+    if (!project) {
+      return res.status(404).json({
+        status: "error",
+        type: "not_found",
+        message: "Project not found"
+      });
+    }
+    const newStep = new Step({ stepNumber, title, description, resources });
+    await newStep.save();
+    project.steps.push(newStep._id);
+    await project.save();
+
+    res.json({
+      status: "success",
+      message: "Step added to project",
+      step: newStep
+    });
   } catch (err) {
     next(err);
   }
