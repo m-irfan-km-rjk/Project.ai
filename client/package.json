@@ -13,7 +13,6 @@
     "@tailwindcss/vite": "^4.1.13",
     "axios": "^1.12.2",
     "dom": "^0.0.3",
-    "joi": "^18.0.1",
     "mongoose": "^8.18.2",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",

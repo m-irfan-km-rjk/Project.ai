@@ -37,14 +37,32 @@ app.use((err, req, res, next) => {
   if (err.isJoi) {
     return res.status(400).json({
       status: "error",
+      type: "validation_error",
       message: "Validation failed",
       details: err.details.map(d => d.message)
     });
   }
 
-  console.error(err);
-  res.status(500).json({
+  if (err.name === "MongoError" || err.name === "MongooseError") {
+    return res.status(500).json({
+      status: "error",
+      type: "database_error",
+      message: err.message
+    });
+  }
+
+  if (err.isAxiosError) {
+    return res.status(err.response?.status || 500).json({
+      status: "error",
+      type: "api_error",
+      message: err.message,
+      details: err.response?.data || null
+    });
+  }
+
+  res.status(err.status || 500).json({
     status: "error",
+    type: "server_error",
     message: err.message || "Internal Server Error"
   });
 });
@@ -125,6 +143,7 @@ app.post('/api/idea', async (req, res) => {
 });
 
 const User = require("./models/User");
+const Project = require("./models/Projects");
 app.use(express.json());
 
 app.post("/api/login", async (req, res) => {
@@ -144,11 +163,11 @@ app.post("/api/login", async (req, res) => {
     res.json({ success: true, message: "Login successful" });
   } catch (err) {
     console.error("Login error:", err);
-    res.status(500).json({ success: false, message: "Server error" });
+    next(err);
   }
 });
 
-app.post("/api/register", validate(userSchema), async (req, res, next) => {
+app.post("/api/register", validateBody(userSchema), async (req, res, next) => {
   try {
     const { username, password, email, phone } = req.body;
 
@@ -163,8 +182,34 @@ app.post("/api/register", validate(userSchema), async (req, res, next) => {
   }
 });
 
-app.post("/api/projects/create", (req, res) => {
-  const { username, title, description } = req.body;
+app.post("/api/projects/create", async (req, res, next) => {
+  try {
+    const { title, description, userId } = req.body;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        status: "error",
+        type: "not_found",
+        message: "User not found"
+      });
+    }
+
+    const newProject = new Project({ title, description });
+    await newProject.save();
+
+    user.projects.push(newProject._id);
+    await user.save();
+
+    res.json({
+      status: "success",
+      message: "Project created and added to user",
+      project: newProject
+    });
+
+  } catch (err) {
+    next(err);
+  }
 });
 
 app.listen(PORT, () => {
