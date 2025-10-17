@@ -34,7 +34,7 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    height: 250px;
+    height: 280px; /* Increased height to accommodate tags */
     border: 1px solid #4a5a6a;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     position: relative;
@@ -77,6 +77,20 @@
 /* Status Badge Colors */
 .completed { background-color: #27ae60; }
 .pending { background-color: #c0392b; }
+
+.tagsContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.tag {
+    background-color: #4a5a6a;
+    padding: 4px 10px;
+    border-radius: 15px;
+    font-size: 0.8rem;
+}
 
 .cardFooter {
     display: flex;

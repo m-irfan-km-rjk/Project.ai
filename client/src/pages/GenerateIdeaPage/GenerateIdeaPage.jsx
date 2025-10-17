@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import styles from "./GenerateIdeaPage.module.css";
 
@@ -10,24 +9,40 @@ const LightbulbIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 
 // ---
 
 const AIResponse = ({ ideas, onIdeaSelect, onRegenerate }) => {
+    const getDifficultyClass = (difficulty) => {
+        switch (difficulty.toLowerCase()) {
+            case "hard":
+                return styles.hard;
+            case "medium":
+                return styles.medium;
+            case "easy":
+                return styles.easy;
+            default:
+                return "";
+        }
+    };
+
     return (
         <div className={styles.ideasBox}>
             <h3>Here are some ideas. Click one to create a new project:</h3>
             <ul className={styles.ideaList}>
                 {ideas.map((idea, index) => (
-                    <motion.li
+                    <li
                         key={index}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.3, delay: index * 0.1 }}
+                        className={`${styles.ideaCard} ${getDifficultyClass(idea.difficulty)}`}
+                        onClick={() => onIdeaSelect(idea)}
                     >
-                         <button
-                            className={styles.ideaButton}
-                            onClick={() => onIdeaSelect(idea.title)}
-                        >
-                            {idea.title}
-                        </button>
-                    </motion.li>
+                        <h4 className={styles.ideaTitle}>{idea.title}</h4>
+                        <p className={styles.ideaDescription}>{idea.description}</p>
+                        <div className={styles.ideaDetails}>
+                            <div className={styles.stack}>
+                                <strong>Stack:</strong> {idea.stack.join(", ")}
+                            </div>
+                            <div className={styles.tags}>
+                                {idea.tags.map(tag => <span key={tag} className={styles.tag}>{tag}</span>)}
+                            </div>
+                        </div>
+                    </li>
                 ))}
             </ul>
             <button onClick={onRegenerate} className={styles.resetButton}>
@@ -52,31 +67,48 @@ const GenerateIdeaPage = () => {
         // Simulate API call
         setTimeout(() => {
             const generatedIdeas = [
-                { title: "A social media platform for pet owners." },
-                { title: "A gamified personal finance app for students." },
-                { title: "An AI-powered meal planning and grocery list generator." }
+                {
+                    title: "PetConnect",
+                    description: "A social network for pet owners to share photos, stories, and arrange playdates.",
+                    difficulty: "Hard",
+                    stack: ["React", "Node.js", "MongoDB", "Socket.io"],
+                    tags: ["Social", "Pets", "Real-time"]
+                },
+                {
+                    title: "Finance Whiz",
+                    description: "A mobile app that helps students track their spending and save money with gamified challenges.",
+                    difficulty: "Medium",
+                    stack: ["React Native", "Firebase", "Chart.js"],
+                    tags: ["Finance", "Education", "Mobile"]
+                },
+                {
+                    title: "MealMate AI",
+                    description: "An intelligent meal planner that suggests recipes and automatically generates a grocery list based on your dietary preferences.",
+                    difficulty: "Easy",
+                    stack: ["React", "Next.js", "Edamam API"],
+                    tags: ["AI", "Health", "Food"]
+                }
             ];
             setIdeas(generatedIdeas);
             setIsLoading(false);
         }, 2000);
     };
 
-    const handleIdeaSelect = (ideaText) => {
+    const handleIdeaSelect = (idea) => {
         const newProject = {
             id: Date.now(), // Use a timestamp for a unique ID
-            title: ideaText,
-            description: "A newly generated AI project idea.",
+            title: idea.title,
+            description: idea.description,
             status: "Pending",
-            progress: 5, // Start with a small amount of progress
+            progress: 5,
+            tags: idea.tags,
         };
-        // Store the new project in session storage to pass it to the projects page
         sessionStorage.setItem('newProject', JSON.stringify(newProject));
-        // Navigate to the projects page
         navigate('/projects');
     };
 
-    const handleKeyDown = (e) => { 
-        if (e.key === "Enter") handleGenerate(); 
+    const handleKeyDown = (e) => {
+        if (e.key === "Enter") handleGenerate();
     };
 
     const handleStartOver = () => {
@@ -89,20 +121,13 @@ const GenerateIdeaPage = () => {
             <Sidebar />
             <main className={styles.mainContent}>
                 <div className={`${styles.chatContainer} ${showWelcomeMessage ? styles.centered : ''}`}>
-                    <AnimatePresence>
-                        {showWelcomeMessage && (
-                             <motion.div
-                                key="welcome"
-                                className={styles.welcomeContainer}
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                            >
-                                <div className={styles.welcomeIcon}><LightbulbIcon /></div>
-                                <h1>Hello, {userName}! Let's create a new project.</h1>
-                                <p>Enter a prompt below to start generating ideas.</p>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
+                    {showWelcomeMessage && (
+                         <div className={styles.welcomeContainer}>
+                            <div className={styles.welcomeIcon}><LightbulbIcon /></div>
+                            <h1>Hello, {userName}! Let's create a new project.</h1>
+                            <p>Enter a prompt below to start generating ideas.</p>
+                        </div>
+                    )}
 
                     {isLoading && (
                          <div className={styles.loadingContainer}>
@@ -112,17 +137,11 @@ const GenerateIdeaPage = () => {
                          </div>
                     )}
                     
-                    <AnimatePresence>
-                        {ideas.length > 0 && !isLoading && (
-                            <motion.div
-                                key="ideas"
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                            >
-                                <AIResponse ideas={ideas} onIdeaSelect={handleIdeaSelect} onRegenerate={handleStartOver} />
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
+                    {ideas.length > 0 && !isLoading && (
+                        <div>
+                            <AIResponse ideas={ideas} onIdeaSelect={handleIdeaSelect} onRegenerate={handleStartOver} />
+                        </div>
+                    )}
                 </div>
 
                 <div className={styles.inputWrapper}>
@@ -150,4 +169,3 @@ const GenerateIdeaPage = () => {
 };
 
 export default GenerateIdeaPage;
-

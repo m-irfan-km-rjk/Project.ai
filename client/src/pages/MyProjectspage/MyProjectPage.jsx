@@ -5,7 +5,7 @@ import styles from "./MyProjectsPage.module.css";
 import { FaArrowRight } from "react-icons/fa";
 
 // Enhanced ProjectCard component
-const ProjectCard = ({ id, title, description, status, progress }) => {
+const ProjectCard = ({ id, title, description, status, progress, tags }) => {
     // Determine status color based on status text
     const getStatusColor = (status) => {
         switch (status.toLowerCase()) {
@@ -28,6 +28,10 @@ const ProjectCard = ({ id, title, description, status, progress }) => {
                     </span>
                 </div>
                 <p className={styles.cardDescription}>{description}</p>
+                <div className={styles.tagsContainer}>
+                    {/* FIX: Ensure tags exist before trying to map over them */}
+                    {tags && tags.map(tag => <span key={tag} className={styles.tag}>{tag}</span>)}
+                </div>
                 <div className={styles.cardFooter}>
                     <div className={styles.progressBarContainer}>
                         <div
@@ -47,9 +51,9 @@ const ProjectCard = ({ id, title, description, status, progress }) => {
 
 // Initial dummy data for projects
 const initialProjects = [
-    { id: 1, title: "AI Startup Idea", description: "Exploring AI tools for businesses.", status: "Completed", progress: 100 },
-    { id: 2, title: "E-commerce Platform", description: "React + MongoDB store.", status: "Completed", progress: 100 },
-    { id: 3, title: "Blog CMS", description: "Custom CMS with Markdown support.", status: "Pending", progress: 90 },
+    { id: 1, title: "AI Startup Idea", description: "Exploring AI tools for businesses.", status: "Completed", progress: 100, tags: ["AI", "Business", "Startup"] },
+    { id: 2, title: "E-commerce Platform", description: "React + MongoDB store.", status: "Completed", progress: 100, tags: ["Web", "E-commerce", "React"] },
+    { id: 3, title: "Blog CMS", description: "Custom CMS with Markdown support.", status: "Pending", progress: 90, tags: ["Web", "CMS", "Content"] },
 ];
 
 const MyProjectsPage = () => {
@@ -60,7 +64,7 @@ const MyProjectsPage = () => {
         const newProjectJSON = sessionStorage.getItem('newProject');
         if (newProjectJSON) {
             const newProject = JSON.parse(newProjectJSON);
-            
+
             // Add the new project to the state, checking for duplicates
             setProjects(prevProjects => {
                 if (prevProjects.some(p => p.id === newProject.id)) {
@@ -88,6 +92,8 @@ const MyProjectsPage = () => {
                             description={project.description}
                             status={project.status}
                             progress={project.progress}
+                            // FIX: Provide a default empty array if tags are missing
+                            tags={project.tags || []}
                         />
                     ))}
                 </div>
@@ -97,4 +103,3 @@ const MyProjectsPage = () => {
 };
 
 export default MyProjectsPage;
-
