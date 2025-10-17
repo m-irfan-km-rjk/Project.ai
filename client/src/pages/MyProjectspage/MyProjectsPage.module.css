@@ -11,23 +11,130 @@
 
 .mainContent h2 {
     margin-bottom: 30px;
+    font-size: 2rem;
+    color: var(--text-light);
 }
 
 .projectsGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 30px;
 }
 
+.projectCardLink {
+    text-decoration: none;
+    color: inherit;
+}
+
 .projectCard {
-    background-color: var(--card-light);
-    height: 200px;
+    background: var(--background-dark-accent);
+    color: var(--text-light);
     border-radius: 15px;
-    /* Add hover effects, etc. */
-    cursor: pointer;
-    transition: transform 0.2s;
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 280px; /* Increased height to accommodate tags */
+    border: 1px solid #4a5a6a;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
 }
 
 .projectCard:hover {
-    transform: translateY(-5px);
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+}
+
+.cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.cardTitle {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 600;
+}
+
+.cardDescription {
+    font-size: 1rem;
+    color: #bdc3c7;
+    flex-grow: 1;
+    margin: 15px 0;
+}
+
+.statusBadge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: white;
+    text-transform: uppercase;
+}
+
+/* Status Badge Colors */
+.completed { background-color: #27ae60; }
+.pending { background-color: #c0392b; }
+
+.tagsContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.tag {
+    background-color: #4a5a6a;
+    padding: 4px 10px;
+    border-radius: 15px;
+    font-size: 0.8rem;
+}
+
+.cardFooter {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.progressBarContainer {
+    flex-grow: 1;
+    height: 8px;
+    background-color: #4a5a6a;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progressBar {
+    height: 100%;
+    background: var(--primary-blue);
+    border-radius: 4px;
+    transition: width 0.5s ease-in-out;
+}
+
+.progressText {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.viewDetails {
+    position: absolute;
+    bottom: -50px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    padding: 12px;
+    background: var(--primary-blue);
+    color: white;
+    font-weight: bold;
+    transition: bottom 0.3s ease-in-out;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.projectCard:hover .viewDetails {
+    bottom: 0;
 }

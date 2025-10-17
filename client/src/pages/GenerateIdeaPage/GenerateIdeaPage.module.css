@@ -4,31 +4,169 @@
 
 .mainContent {
     flex-grow: 1;
-    padding: 40px;
     height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 0; /* Remove padding to allow chat container to take full space */
+    background-color: var(--background-dark);
+    position: relative;
+}
+
+.chatContainer {
+    flex-grow: 1;
     overflow-y: auto;
+    padding: 20px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Welcome Screen Styles */
+.welcomeContainer {
+    text-align: center;
+    color: var(--text-light);
+    margin: auto; /* This centers it perfectly in the flex container */
+}
+
+.welcomeIcon {
+    font-size: 4rem;
+    color: #f1c40f;
+    margin-bottom: 20px;
+}
+
+.welcomeContainer h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+.welcomeContainer p {
+    font-size: 1.2rem;
+    color: #bdc3c7;
+}
+
+/* Conversation View Styles */
+.messageWrapper {
     display: flex;
     flex-direction: column;
 }
 
-/* Initial Prompt View */
-.promptContainer {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-grow: 1;
+.userMessage, .aiMessage {
+    padding: 15px 20px;
+    border-radius: 20px;
+    max-width: 80%;
+    width: fit-content;
+    line-height: 1.6;
 }
 
+.userMessage {
+    background-color: var(--primary-blue);
+    color: white;
+    align-self: flex-end; /* Aligns to the right */
+    border-bottom-right-radius: 5px;
+}
+.userMessage p {
+    margin: 0;
+}
+
+.aiMessage {
+    background-color: var(--background-dark-accent);
+    color: var(--text-light);
+    align-self: flex-start; /* Aligns to the left */
+    border-bottom-left-radius: 5px;
+}
+
+/* Ideas Box Styles (inside AI message) */
+.ideasBox h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #4a5a6a;
+    padding-bottom: 10px;
+}
+
+.ideaList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Added spacing between idea cards */
+}
+
+.ideaCard {
+    background-color: #34495e;
+    padding: 20px;
+    border-radius: 10px;
+    border-left: 5px solid; /* For difficulty color */
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.ideaCard:hover {
+    transform: translateY(-5px);
+}
+
+.ideaCard.easy { border-color: #2ecc71; } /* Green */
+.ideaCard.medium { border-color: #f39c12; } /* Orange */
+.ideaCard.hard { border-color: #e74c3c; } /* Red */
+
+.ideaTitle {
+    margin: 0 0 10px 0;
+}
+
+.ideaDetails {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.stack {
+    font-size: 0.9rem;
+}
+
+.tags {
+    display: flex;
+    gap: 8px;
+}
+
+.tag {
+    background-color: #4a5a6a;
+    padding: 4px 10px;
+    border-radius: 15px;
+    font-size: 0.8rem;
+}
+
+
+.resetButton {
+    background: none;
+    border: 1px solid var(--primary-blue);
+    color: var(--primary-blue);
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.resetButton:hover {
+    background-color: var(--primary-blue);
+    color: white;
+}
+
+/* Input Bar Styles */
 .inputWrapper {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 40px;
     position: relative;
-    width: 60%;
+    background: var(--background-dark);
 }
 
 .inputWrapper input {
     width: 100%;
     padding: 20px 60px 20px 20px;
     border-radius: 30px;
-    border: none;
+    border: 1px solid #4a5a6a;
     background-color: var(--background-dark-accent);
     color: var(--text-light);
     font-size: 1.1rem;
@@ -36,7 +174,7 @@
 
 .inputWrapper button {
     position: absolute;
-    right: 10px;
+    right: 50px; /* Adjusted position */
     top: 50%;
     transform: translateY(-50%);
     width: 40px;
@@ -50,35 +188,31 @@
     justify-content: center;
     align-items: center;
 }
-
-/* Ideas List View */
-.ideasContainer {
-    width: 100%;
+.inputWrapper button:disabled {
+    background-color: #4a5a6a;
+    cursor: not-allowed;
 }
 
-.ideasContainer h2 {
-    margin-bottom: 20px;
-    font-weight: normal;
-    color: #bdc3c7;
+/* Loading Animation */
+.loadingIndicator {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 10px;
 }
 
-.ideasBox {
-    background-color: var(--card-light);
-    color: var(--text-dark);
-    padding: 30px;
-    border-radius: 20px;
+.dot {
+    width: 8px;
+    height: 8px;
+    background-color: #bdc3c7;
+    border-radius: 50%;
+    animation: bounce 1.4s infinite ease-in-out both;
 }
 
-.ideasBox h3 {
-    margin-top: 0;
-}
+.dot:nth-child(1) { animation-delay: -0.32s; }
+.dot:nth-child(2) { animation-delay: -0.16s; }
 
-.ideasBox ul {
-    list-style: none;
-    padding: 0;
-}
-
-.ideasBox li {
-    font-size: 1.1rem;
-    line-height: 2;
+@keyframes bounce {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1.0); }
 }

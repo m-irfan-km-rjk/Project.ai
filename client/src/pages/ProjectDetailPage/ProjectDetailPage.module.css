@@ -7,6 +7,36 @@
     padding: 40px;
     height: 100vh;
     overflow-y: auto;
+    background-color: var(--background-dark);
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.header h2 {
+    color: var(--text-light);
+}
+
+.backButton {
+    background: none;
+    border: none;
+    color: var(--text-light);
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    border-radius: 50%;
+    transition: background-color 0.3s;
+}
+
+.backButton:hover {
+    background-color: var(--background-dark-accent);
 }
 
 .contentGrid {
@@ -27,10 +57,11 @@
 }
 
 .card {
-    background-color: var(--card-light);
-    color: var(--text-dark);
+    background-color: var(--background-dark-accent);
+    color: var(--text-light);
     padding: 30px;
     border-radius: 20px;
+    border: 1px solid #4a5a6a;
 }
 
 .card h3 {
@@ -38,6 +69,61 @@
     margin-bottom: 20px;
 }
 
+/* Enhanced Description Card Styles */
+.descriptionCard {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.descriptionSection {
+    border-left: 3px solid var(--primary-blue);
+    padding-left: 20px;
+}
+
+.sectionHeader {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.sectionHeader h3 {
+    margin: 0;
+    font-size: 1.3rem;
+    color: var(--text-light);
+}
+
+.sectionIcon {
+    font-size: 1.2rem;
+    color: var(--primary-blue);
+}
+
+.descriptionSection p, .goalsList li {
+    color: #bdc3c7;
+    line-height: 1.6;
+}
+
+.techStack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.techStack span {
+    background-color: #4a5a6a;
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.goalsList {
+    padding-left: 20px;
+    list-style-type: disc;
+}
+
+/* Todo Card Styles */
 .todoList {
     list-style: none;
     padding: 0;
@@ -46,14 +132,45 @@
     gap: 15px;
 }
 
-.todoList li {
+.todoItem {
     display: flex;
     align-items: center;
     gap: 20px;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+    background-color: #34495e;
+}
+
+.todoItem:hover {
+    background-color: #4a5a6a;
+}
+
+.todoCheckbox {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #bdc3c7;
+    border-radius: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    color: white;
+}
+
+.todoItem.completed span {
+    text-decoration: line-through;
+    color: #888;
+}
+
+.todoItem.completed .todoCheckbox {
+    background-color: var(--primary-blue);
+    border-color: var(--primary-blue);
 }
 
 .todoIcon {
-    background-color: #d0d0d0;
+    background-color: #4a5a6a;
     width: 40px;
     height: 40px;
     border-radius: 8px;
@@ -93,7 +210,7 @@
 }
 
 .circleBackground {
-    stroke: #ddd;
+    stroke: #4a5a6a;
 }
 
 .circleProgress {
@@ -101,4 +218,4 @@
     stroke-linecap: round;
     stroke-linejoin: round;
     transition: stroke-dashoffset 0.5s ease-out;
-}
+}   
