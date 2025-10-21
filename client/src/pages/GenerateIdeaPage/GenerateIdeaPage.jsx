@@ -26,9 +26,9 @@ const AIResponse = ({ ideas, onIdeaSelect, onRegenerate }) => {
         <div className={styles.ideasBox}>
             <h3>Here are some ideas. Click one to create a new project:</h3>
             <ul className={styles.ideaList}>
-                {ideas.map((idea, index) => (
+                {ideas.map((idea) => (
                     <li
-                        key={index}
+                        key={idea.id} // Use idea.id for the key
                         className={`${styles.ideaCard} ${getDifficultyClass(idea.difficulty)}`}
                         onClick={() => onIdeaSelect(idea)}
                     >
@@ -36,10 +36,15 @@ const AIResponse = ({ ideas, onIdeaSelect, onRegenerate }) => {
                         <p className={styles.ideaDescription}>{idea.description}</p>
                         <div className={styles.ideaDetails}>
                             <div className={styles.stack}>
-                                <strong>Stack:</strong> {idea.stack.join(", ")}
+                                <strong>Stack:</strong> 
+                                {/* Map over stack objects to get names */}
+                                {idea.stack.map(s => s.name).join(", ")}
                             </div>
                             <div className={styles.tags}>
-                                {idea.tags.map(tag => <span key={tag} className={styles.tag}>{tag}</span>)}
+                                {/* Map over tag objects */}
+                                {idea.tags.map(tag => (
+                                    <span key={tag.id} className={styles.tag}>{tag.name}</span>
+                                ))}
                             </div>
                         </div>
                     </li>
@@ -66,27 +71,56 @@ const GenerateIdeaPage = () => {
         setIsLoading(true);
         // Simulate API call
         setTimeout(() => {
+            // UPDATED: Added 'id' to ideas and structured 'stack' and 'tags' as objects with 'id'
             const generatedIdeas = [
                 {
+                    id: "idea-1", // Unique ID for the idea
                     title: "PetConnect",
                     description: "A social network for pet owners to share photos, stories, and arrange playdates.",
                     difficulty: "Hard",
-                    stack: ["React", "Node.js", "MongoDB", "Socket.io"],
-                    tags: ["Social", "Pets", "Real-time"]
+                    stack: [
+                        { id: "s-1", name: "React" },
+                        { id: "s-2", name: "Node.js" },
+                        { id: "s-3", name: "MongoDB" },
+                        { id: "s-4", name: "Socket.io" }
+                    ],
+                    tags: [
+                        { id: "t-1", name: "Social" },
+                        { id: "t-2", name: "Pets" },
+                        { id: "t-3", name: "Real-time" }
+                    ]
                 },
                 {
+                    id: "idea-2",
                     title: "Finance Whiz",
                     description: "A mobile app that helps students track their spending and save money with gamified challenges.",
                     difficulty: "Medium",
-                    stack: ["React Native", "Firebase", "Chart.js"],
-                    tags: ["Finance", "Education", "Mobile"]
+                    stack: [
+                        { id: "s-5", name: "React Native" },
+                        { id: "s-6", name: "Firebase" },
+                        { id: "s-7", name: "Chart.js" }
+                    ],
+                    tags: [
+                        { id: "t-4", name: "Finance" },
+                        { id: "t-5", name: "Education" },
+                        { id: "t-6", name: "Mobile" }
+                    ]
                 },
                 {
+                    id: "idea-3",
                     title: "MealMate AI",
                     description: "An intelligent meal planner that suggests recipes and automatically generates a grocery list based on your dietary preferences.",
                     difficulty: "Easy",
-                    stack: ["React", "Next.js", "Edamam API"],
-                    tags: ["AI", "Health", "Food"]
+                    stack: [
+                        { id: "s-1", name: "React" },
+                        { id: "s-8", name: "Next.js" },
+                        { id: "s-9", name: "Edamam API" }
+                    ],
+                    tags: [
+                        { id: "t-7", name: "AI" },
+                        { id: "t-8", name: "Health" },
+                        { id: "t-9", name: "Food" }
+                    ]
                 }
             ];
             setIdeas(generatedIdeas);
@@ -96,12 +130,12 @@ const GenerateIdeaPage = () => {
 
     const handleIdeaSelect = (idea) => {
         const newProject = {
-            id: Date.now(), // Use a timestamp for a unique ID
+            id: Date.now(), // Use a timestamp or wait for backend ID
             title: idea.title,
             description: idea.description,
             status: "Pending",
             progress: 5,
-            tags: idea.tags,
+            tags: idea.tags, // Pass the array of tag objects
         };
         sessionStorage.setItem('newProject', JSON.stringify(newProject));
         navigate('/projects');

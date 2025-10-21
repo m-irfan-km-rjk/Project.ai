@@ -29,8 +29,10 @@ const ProjectCard = ({ id, title, description, status, progress, tags }) => {
                 </div>
                 <p className={styles.cardDescription}>{description}</p>
                 <div className={styles.tagsContainer}>
-                    {/* FIX: Ensure tags exist before trying to map over them */}
-                    {tags && tags.map(tag => <span key={tag} className={styles.tag}>{tag}</span>)}
+                    {/* UPDATED: Map over tags as objects, using tag.id for key and tag.name for text */}
+                    {tags && tags.map(tag => (
+                        <span key={tag.id} className={styles.tag}>{tag.name}</span>
+                    ))}
                 </div>
                 <div className={styles.cardFooter}>
                     <div className={styles.progressBarContainer}>
@@ -49,11 +51,44 @@ const ProjectCard = ({ id, title, description, status, progress, tags }) => {
     );
 };
 
-// Initial dummy data for projects
+// UPDATED: Initial dummy data for projects now uses tag objects with IDs
 const initialProjects = [
-    { id: 1, title: "AI Startup Idea", description: "Exploring AI tools for businesses.", status: "Completed", progress: 100, tags: ["AI", "Business", "Startup"] },
-    { id: 2, title: "E-commerce Platform", description: "React + MongoDB store.", status: "Completed", progress: 100, tags: ["Web", "E-commerce", "React"] },
-    { id: 3, title: "Blog CMS", description: "Custom CMS with Markdown support.", status: "Pending", progress: 90, tags: ["Web", "CMS", "Content"] },
+    { 
+        id: 1, 
+        title: "AI Startup Idea", 
+        description: "Exploring AI tools for businesses.", 
+        status: "Completed", 
+        progress: 100, 
+        tags: [
+            { id: "t-10", name: "AI" }, 
+            { id: "t-11", name: "Business" }, 
+            { id: "t-12", name: "Startup" }
+        ] 
+    },
+    { 
+        id: 2, 
+        title: "E-commerce Platform", 
+        description: "React + MongoDB store.", 
+        status: "Completed", 
+        progress: 100, 
+        tags: [
+            { id: "t-13", name: "Web" }, 
+            { id: "t-14", name: "E-commerce" }, 
+            { id: "t-15", name: "React" }
+        ] 
+    },
+    { 
+        id: 3, 
+        title: "Blog CMS", 
+        description: "Custom CMS with Markdown support.", 
+        status: "Pending", 
+        progress: 90, 
+        tags: [
+            { id: "t-13", name: "Web" }, 
+            { id: "t-16", name: "CMS" }, 
+            { id: "t-17", name: "Content" }
+        ] 
+    },
 ];
 
 const MyProjectsPage = () => {
@@ -70,6 +105,7 @@ const MyProjectsPage = () => {
                 if (prevProjects.some(p => p.id === newProject.id)) {
                     return prevProjects; // Avoid adding duplicates
                 }
+                // The newProject from session storage now also has tags as objects
                 return [newProject, ...prevProjects]; // Add new project to the top of the list
             });
 
@@ -92,7 +128,7 @@ const MyProjectsPage = () => {
                             description={project.description}
                             status={project.status}
                             progress={project.progress}
-                            // FIX: Provide a default empty array if tags are missing
+                            // Provide a default empty array if tags are missing
                             tags={project.tags || []}
                         />
                     ))}
