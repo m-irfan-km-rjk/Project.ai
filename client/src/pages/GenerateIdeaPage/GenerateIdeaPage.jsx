@@ -108,57 +108,55 @@ const GenerateIdeaPage = () => {
         setPrompt("");
     };
 
-    // --- Return statement (no changes here) ---
-    return (
-        <div className={styles.dashboard}>
-            <Sidebar />
-            <main className={styles.mainContent}>
-                <div className={`${styles.chatContainer} ${showWelcomeMessage ? styles.centered : ''}`}>
-                    {showWelcomeMessage && (
-                         <div className={styles.welcomeContainer}>
-                            <div className={styles.welcomeIcon}><LightbulbIcon /></div>
-                            <h1>Hello, {userName}! Let's create a new project.</h1>
-                            <p>Enter a prompt below to start generating ideas.</p>
-                        </div>
-                    )}
-
-                    {isLoading && (
-                         <div className={styles.loadingContainer}>
-                            <div className={styles.dot}></div>
-                            <div className={styles.dot}></div>
-                            <div className={styles.dot}></div>
-                         </div>
-                    )}
-                    
-                    {ideas.length > 0 && !isLoading && (
-                        <div>
-                            <AIResponse ideas={ideas} onIdeaSelect={handleIdeaSelect} onRegenerate={handleStartOver} />
-                        </div>
-                    )}
-                </div>
-
-                <div className={styles.inputWrapper}>
-                    <input
-                        type="text"
-                        className={styles.input}
-                        placeholder="e.g., a project using React and a weather API"
-                        value={prompt}
-                        onChange={(e) => setPrompt(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                        disabled={isLoading}
-                    />
-                    <button
-                        onClick={handleGenerate}
-                        className={styles.button}
-                        disabled={isLoading || !prompt.trim()}
-                        aria-label="Generate Ideas"
-                    >
-                        <ArrowUpIcon />
-                    </button>
-                </div>
-            </main>
-        </div>
-    );
+  return (
+    <div className={styles.dashboard}>
+      <Sidebar />
+      <main className={styles.mainContent}>
+        {ideas.length === 0 ? (
+          <div className={styles.promptContainer}>
+            <div className={styles.inputWrapper}>
+              <input
+                type="text"
+                placeholder="Enter your idea..."
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                onKeyDown={handleKeyDown}
+                disabled={isLoading}
+              />
+              <button
+                onClick={handleGenerate}
+                disabled={isLoading || !prompt.trim()}
+                aria-label="Generate Ideas"
+              >
+                {isLoading ? "..." : <FaArrowUp />}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className={styles.ideasContainer}>
+            <h2>Entered Prompt: {prompt}</h2>
+            <div className={styles.ideasBox}>
+              <h3>List of Ideas to Select</h3>
+              <ul>
+                {ideas.map((idea, index) => (
+                  <li key={index}>{idea.title}</li>
+                ))}
+              </ul>
+              <button
+                onClick={() => {
+                  setIdeas([]);
+                  setPrompt("");
+                }}
+                className={styles.resetButton}
+              >
+                Generate Again
+              </button>
+            </div>
+          </div>
+        )}
+      </main>
+    </div>
+  );
 };
 
 export default GenerateIdeaPage;

@@ -2,11 +2,15 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styles from "./RegisterPage.module.css";
 import axios from "axios";
+import { useAuth } from "../../hooks/AuthContext";
 
 const RegisterPage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const { setUserId } = useAuth();
   const navigate = useNavigate();
 
   // Password validation rules
@@ -26,9 +30,10 @@ const RegisterPage = () => {
     if (password !== confirmPassword) return; // Prevent if mismatch
 
     // TODO: Implement registration logic
-    axios.post('http:localhost:3000/api/register', { username, password })
+    axios.post('http://localhost:3000/api/register', { username, password, email, phone })
       .then(response => {
         if (response.data.success) {
+          setUserId(response.data.userId);
           navigate('/login');
         } else {
           alert(response.data.message);
@@ -54,6 +59,28 @@ const RegisterPage = () => {
               placeholder="Enter Your Username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className={styles.inputGroup}>
+            <label>Email</label>
+            <input
+              type="email"
+              placeholder="Enter Your Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className={styles.inputGroup}>
+            <label>Phone</label>
+            <input
+              type="text"
+              placeholder="Enter Your Phone No."
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
               required
             />
           </div>
