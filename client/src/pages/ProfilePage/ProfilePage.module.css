@@ -11,6 +11,8 @@
     display: flex;
     justify-content: center;
     align-items: flex-start; /* Aligns card to the top */
+    margin-left: 200px; /* <-- Added this */
+    width: calc(100% - 200px); /* <-- Added this */
 }
 
 .card {

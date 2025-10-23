@@ -10,6 +10,8 @@
     padding: 0; /* Remove padding to allow chat container to take full space */
     background-color: var(--background-dark);
     position: relative;
+    margin-left: 200px; /* <-- Added this */
+    width: calc(100% - 200px); /* <-- Added this */
 }
 
 .chatContainer {
