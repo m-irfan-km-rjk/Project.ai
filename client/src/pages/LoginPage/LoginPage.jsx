@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import styles from './LoginPage.module.css';
 import axios from 'axios';
+import { useAuth } from '../../hooks/AuthContext';
 // import backgroundImage from '../../assets/background.jpg';
 
 const LoginPage = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const { setUserId } = useAuth();
     const navigate = useNavigate();
 
     const handleSubmit = (e) => {
@@ -15,6 +17,7 @@ const LoginPage = () => {
         axios.post('http://localhost:3000/api/login', { username, password })
             .then(response => {
                 if (response.data.success) {
+                    setUserId(response.data.userId);
                     navigate('/generate');
                 } else {
                     alert(response.data.message);
