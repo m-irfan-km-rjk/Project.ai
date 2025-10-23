@@ -6,11 +6,10 @@
   flex-direction: column;
   height: 100%;
   padding: 20px;
-  /* Adding position: fixed to keep it in place */
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 1000; /* Ensures it stays on top */
+  z-index: 1000;
 }
 
 .logo {
