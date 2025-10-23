@@ -23,7 +23,7 @@ function App() {
         route like "/projects/:id" when you are fetching specific project data.
       */}
       <Route path="/profile" element={<ProfilePage />} />
-      <Route path="/project/:id" element={<ProjectDetailPage />} />
+      <Route path="/project/:projectid" element={<ProjectDetailPage />} />
       <Route path="/change-password" element={<ChangePasswordPage />} />
       <Route path="*" element={<h2>404: Page Not Found</h2>} />
     </Routes>

@@ -7,6 +7,9 @@ dotenv.config();
 const app = express();
 const joi = require('joi');
 const bcrypt = require('bcrypt');
+const multer = require("multer");
+const { v2: cloudinary } = require("cloudinary");
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
 
 app.use(express.json());
 app.use(cors());
@@ -45,6 +48,12 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 3000;
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('MongoDB connected'))
@@ -104,7 +113,7 @@ app.post('/api/generate-ideas', async (req, res) => {
         maxItems: 4,
       }
     },
-    required: ["title", "description", "difficulty", "tags"]
+    required: ["title", "description", "difficulty", "tags", "stack"]
   }
 }
       }
@@ -121,17 +130,26 @@ app.post('/api/generate-ideas', async (req, res) => {
   }
 });
 
-app.post('/api/idea', async (req, res) => {
+app.post('/api/idea', async (req, res, next) => {
   const { prompt } = req.body;
   const apiKey = process.env.GEMINI_API_KEY;
   const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+
   try {
     const response = await axios.post(apiUrl, {
       contents: [
         {
           role: "user",
           parts: [
-            { text: `Check this ${JSON.stringify(prompt)}. Now generate me steps to implement this project` }
+            { text: `You are an expert project mentor. Here is a project idea: ${JSON.stringify(prompt)}. 
+
+Generate a comprehensive step-by-step implementation plan for this project. Each step should include: 
+1. A concise step title.
+2. A detailed description explaining how to implement it.
+3. Suggested learning resources, tutorials, or documentation links if necessary.
+
+Organize the steps sequentially, ensuring clarity for someone who wants to implement the project from scratch. Make it actionable and beginner-friendly, but technically accurate.
+` }
           ]
         }
       ],
@@ -142,23 +160,33 @@ app.post('/api/idea', async (req, res) => {
           items: {
             type: "object",
             properties: {
-              step_no: { type: "number" },
+              step_number: { type: "number" },
               step_title: { type: "string" },
-              implementation_details: { type: "string" }
+              implementation_details: { type: "string" },
+              completed: { type: "boolean", default: false }  // <-- added
             },
-            required: ["step_no", "step_title", "implementation_details"]
+            required: ["step_number", "step_title", "implementation_details"]
           }
         }
       }
-    }
-      , {
-        headers: {
-          'Content-Type': 'application/json',
-          'X-goog-api-key': `${apiKey}`
-        }
-      });
-    res.json(JSON.parse(response.data.candidates[0].content.parts[0].text));
-    console.log("done");
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+        'X-goog-api-key': apiKey
+      }
+    });
+
+    // Parse and send the steps back
+    const generatedSteps = JSON.parse(response.data.candidates[0].content.parts[0].text);
+
+    // Ensure `completed` exists on each step (default false)
+    const formattedSteps = generatedSteps.map(step => ({
+      ...step,
+      completed: step.completed ?? false
+    }));
+
+    res.json(formattedSteps);
+    console.log("Steps generated successfully");
   } catch (error) {
     console.error('Error fetching from Gemini API:', error);
     next(error);
@@ -167,7 +195,6 @@ app.post('/api/idea', async (req, res) => {
 
 const User = require("./models/User");
 const Project = require("./models/Projects");
-app.use(express.json());
 
 app.post("/api/login", async (req, res, next) => {
   try {
@@ -208,7 +235,7 @@ app.post("/api/register", validateBody(userSchema), async (req, res, next) => {
 
 app.post("/api/projects/create", async (req, res, next) => {
   try {
-    const { title, description, userId } = req.body;
+    const { title, description, userId, difficulty, tags, stack } = req.body;
 
     const user = await User.findById(userId);
     if (!user) {
@@ -219,7 +246,7 @@ app.post("/api/projects/create", async (req, res, next) => {
       });
     }
 
-    const newProject = new Project({ title, description });
+    const newProject = new Project({ title, description, difficulty, tags, stack });
     await newProject.save();
 
     user.projects.push(newProject._id);
@@ -235,6 +262,63 @@ app.post("/api/projects/create", async (req, res, next) => {
     next(err);
   }
 });
+
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: "project_images",
+    allowed_formats: ["jpg", "jpeg", "png", "webp"],
+  },
+});
+
+const upload = multer({ storage });
+
+// Upload images & attach to a project
+app.post(
+  "/api/projects/:projectId/upload-images",
+  upload.array("images", 5), // multer still limits per request
+  async (req, res, next) => {
+    try {
+      const { projectId } = req.params;
+      const project = await Project.findById(projectId);
+
+      if (!project) {
+        return res.status(404).json({
+          status: "error",
+          type: "not_found",
+          message: "Project not found",
+        });
+      }
+
+      const existingImagesCount = project.images.length;
+      const newImagesCount = req.files.length;
+
+      // Prevent exceeding 5 images total
+      if (existingImagesCount + newImagesCount > 5) {
+        return res.status(400).json({
+          status: "error",
+          type: "limit_exceeded",
+          message: `You can upload a maximum of 5 images per project. You already have ${existingImagesCount} image(s).`,
+        });
+      }
+
+      // Get uploaded image URLs from Cloudinary
+      const imageUrls = req.files.map((file) => file.path);
+
+      // Add them to the project
+      project.images.push(...imageUrls);
+      await project.save();
+
+      res.json({
+        status: "success",
+        message: `${imageUrls.length} images uploaded and added to project`,
+        images: imageUrls,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+);
 
 app.get("/api/user/projects", async (req, res, next) => {
   try {
@@ -293,7 +377,7 @@ app.get("/api/projects/:projectId", async (req, res, next) => {
     }
 
     // 3. Fetch project
-    const project = await Project.findById(projectId).populate("steps");
+    const project = await Project.findById(projectId);
     if (!project) {
       return res.status(404).json({
         status: "error",
@@ -314,9 +398,18 @@ app.get("/api/projects/:projectId", async (req, res, next) => {
 app.post("/api/projects/:projectId/steps/add", async (req, res, next) => {
   try {
     const { projectId } = req.params;
-    const { stepNumber, title, description, resources } = req.body;
+    const stepsArray = req.body; // Expecting an array of steps
+
+    if (!Array.isArray(stepsArray)) {
+      return res.status(400).json({
+        status: "error",
+        type: "invalid_input",
+        message: "Expected an array of steps"
+      });
+    }
+
     const Project = require("./models/Projects");
-    const Step = require("./models/Steps");
+
     const project = await Project.findById(projectId);
     if (!project) {
       return res.status(404).json({
@@ -325,15 +418,24 @@ app.post("/api/projects/:projectId/steps/add", async (req, res, next) => {
         message: "Project not found"
       });
     }
-    const newStep = new Step({ stepNumber, title, description, resources });
-    await newStep.save();
-    project.steps.push(newStep._id);
+
+    // Map incoming steps to the structure inside Project.steps
+    const newSteps = stepsArray.map(step => ({
+      step_number: step.step_number,
+      step_title: step.step_title,
+      implementation_details: step.implementation_details,
+      completed: false,
+      resources: step.resources || []
+    }));
+
+    // Add steps to project
+    project.steps.push(...newSteps);
     await project.save();
 
     res.json({
       status: "success",
-      message: "Step added to project",
-      step: newStep
+      message: `${newSteps.length} steps added to project`,
+      steps: newSteps
     });
   } catch (err) {
     next(err);
@@ -364,4 +466,38 @@ app.get("/api/users/:userId", async (req, res, next) => {
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+});
+
+app.put("/api/projects/:projectId/steps/update", async (req, res, next) => {
+    try {
+        const { projectId } = req.params;
+        const { steps, progress } = req.body;
+
+        const Project = require("./models/Projects");
+        const project = await Project.findById(projectId);
+        if (!project) {
+            return res.status(404).json({ status: "error", message: "Project not found" });
+        }
+
+        project.steps = steps;
+        project.progress = progress;
+        if(progress === 100) {
+            project.status = "Completed";
+        } else if (progress > 0) {
+            project.status = "In Progress";
+        } else {
+            project.status = "Pending";
+        }
+
+        await project.save();
+
+        res.json({
+            status: "success",
+            message: "Project steps and progress updated",
+            steps: project.steps,
+            progress: project.progress
+        });
+    } catch (err) {
+        next(err);
+    }
 });

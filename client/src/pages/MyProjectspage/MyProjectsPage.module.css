@@ -65,12 +65,13 @@
     color: #bdc3c7;
     flex-grow: 1;
     margin: 15px 0;
+    overflow: hidden;
 }
 
 .statusBadge {
     padding: 5px 12px;
     border-radius: 20px;
-    font-size: 0.8rem;
+    font-size: 0.7rem;
     font-weight: bold;
     color: white;
     text-transform: uppercase;
@@ -79,6 +80,7 @@
 /* Status Badge Colors */
 .completed { background-color: #27ae60; }
 .pending { background-color: #c0392b; }
+.inprogress { background-color: #f39c12; }
 
 .tagsContainer {
     display: flex;

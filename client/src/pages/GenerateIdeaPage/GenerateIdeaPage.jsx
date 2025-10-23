@@ -4,6 +4,7 @@ import Sidebar from "../../components/Sidebar/Sidebar";
 import styles from "./GenerateIdeaPage.module.css";
 import axios from "axios"; // Import axios
 import { FaArrowUp, FaLightbulb } from "react-icons/fa";
+import { useAuth } from "../../hooks/AuthContext";
 
 // --- SVG Icons (no changes here) ---
 const ArrowUpIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"><path d="M12 4L4 12h5v6h6v-6h5L12 4z" /></svg>);
@@ -60,7 +61,7 @@ const GenerateIdeaPage = () => {
     const [ideas, setIdeas] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
-    const userName = "Alex"; // This can be replaced with actual user data later
+    const {userId} = useAuth();
 
     const showWelcomeMessage = (ideas.length === 0 && !isLoading);
 
@@ -84,20 +85,24 @@ const GenerateIdeaPage = () => {
     };
 
     const handleIdeaSelect = (idea) => {
-        const newProject = {
-            id: Date.now(),
+        
+        axios.post('http://localhost:3000/api/projects/create', {
             title: idea.title,
             description: idea.description,
-            status: "Pending",
-            progress: 5,
+            userId: userId,
+            difficulty: idea.difficulty,
             tags: idea.tags,
-            // Include stack and other details if needed for the detail page
-            stack: idea.stack 
-        };
-        // Store the selected idea to pass to the detail page
-        sessionStorage.setItem('selectedProjectIdea', JSON.stringify(idea));
-        sessionStorage.setItem('newProject', JSON.stringify(newProject));
-        navigate('/projects');
+            stack: idea.stack
+        })
+        .then(response => {
+            console.log("Project created:", response.data);
+            // Redirect to projects page or project details page
+            navigate('/projects');
+        })
+        .catch(error => {
+            console.error("Error creating project:", error);
+            alert("Sorry, we couldn't create the project right now. Please try again later.");
+        });
     };
 
     const handleKeyDown = (e) => {

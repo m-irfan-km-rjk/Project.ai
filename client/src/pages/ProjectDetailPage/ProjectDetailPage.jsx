@@ -1,137 +1,33 @@
-// import React from 'react';
-// import Sidebar from '../../components/Sidebar/Sidebar';
-// import styles from './ProjectDetailPage.module.css';
-// import { FaCodeBranch, FaArrowRight, FaAngleRight, FaCircleNotch } from 'react-icons/fa';
-// import { BsListTask } from 'react-icons/bs';
-
-// // This could be a reusable component
-// const CircularProgress = ({ percentage }) => {
-//     const sqSize = 120;
-//     const strokeWidth = 10;
-//     const radius = (sqSize - strokeWidth) / 2;
-//     const viewBox = `0 0 ${sqSize} ${sqSize}`;
-//     const dashArray = radius * Math.PI * 2;
-//     const dashOffset = dashArray - (dashArray * percentage) / 100;
-
-//     return (
-//         <div className={styles.progressContainer}>
-//             {/* <svg width={sqSize} height={sqSize} viewBox={viewBox}>
-//                 <circle
-//                     className={styles.circleBackground}
-//                     cx={sqSize / 2}
-//                     cy={sqSize / 2}
-//                     r={radius}
-//                     strokeWidth={`${strokeWidth}px`}
-//                 />
-//                 <circle
-//                     className={styles.circleProgress}
-//                     cx={sqSize / 2}
-//                     cy={sqSize / 2}
-//                     r={radius}
-//                     strokeWidth={`${strokeWidth}px`}
-//                     transform={`rotate(-90 ${sqSize / 2} ${sqSize / 2})`}
-//                     style={{
-//                         strokeDasharray: dashArray,
-//                         strokeDashoffset: dashOffset,
-//                     }}
-//                 />
-//             </svg> */}
-//             <span className={styles.progressText}>{percentage}%</span>
-//         </div>
-//     );
-// };
-
-// const ProjectDetailPage = () => {
-//     const todoItems = [
-//         { icon: <BsListTask />, text: 'Initial Commit' },
-//         { icon: <FaCodeBranch />, text: 'Path Changed' },
-//         { icon: <FaArrowRight />, text: 'Now' },
-//         { icon: <FaAngleRight />, text: 'Next for exploration ...' },
-//         { icon: <FaCircleNotch />, text: 'Final Step' },
-//     ];
-
-//     return (
-//         <div className={styles.dashboard}>
-//             {/* The sidebar isn't in the design, but likely needed for navigation */}
-//             {/* <Sidebar /> */}
-//             <main className={styles.mainContent}>
-//                 <div className={styles.header}>
-//                     <h2>Project Details</h2>
-//                 </div>
-//                 <div className={styles.contentGrid}>
-//                     <div className={styles.leftColumn}>
-//                         <div className={`${styles.card} ${styles.descriptionCard}`}>
-//                             <h3>Description Of the project</h3>
-//                             <p>
-//                                 A detailed description of the project goes here. It explains the goals,
-//                                 the technology stack, and the expected outcomes of this specific project.
-//                             </p>
-//                         </div>
-//                         <div className={`${styles.card} ${styles.todoCard}`}>
-//                             <h3>A To-do List of the steps to be completed to finish the project</h3>
-//                             <ul className={styles.todoList}>
-//                                 {todoItems.map((item, index) => (
-//                                     <li key={index}>
-//                                         <div className={styles.todoIcon}>{item.icon}</div>
-//                                         <span>{item.text}</span>
-//                                     </li>
-//                                 ))}
-//                             </ul>
-//                         </div>
-//                     </div>
-//                     <div className={styles.rightColumn}>
-//                          <div className={`${styles.card} ${styles.statusCard}`}>
-//                             <h3>Status</h3>
-//                             <CircularProgress percentage={77} />
-//                         </div>
-//                     </div>
-//                 </div>
-//             </main>
-//         </div>
-//     );
-// };
-
-// export default ProjectDetailPage;
-
-import React, { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useMemo, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import {
-    FaCodeBranch, FaArrowRight, FaAngleRight, FaCircleNotch, FaArrowLeft,
-    FaRegLightbulb, FaTools, FaBullseye // New icons
+    FaArrowLeft, FaRegLightbulb, FaTools, FaBullseye, FaListUl,
+    FaChevronDown, FaChevronUp, FaCloudUploadAlt
 } from "react-icons/fa";
-import { BsListTask } from "react-icons/bs";
 import styles from "./ProjectDetailPage.module.css";
+import axios from "axios";
+import { useAuth } from "../../hooks/AuthContext";
+import { v4 as uuidv4 } from "uuid";
 
-// CircularProgress component remains the same
 const CircularProgress = ({ percentage }) => {
     const sqSize = 120;
     const strokeWidth = 10;
     const radius = (sqSize - strokeWidth) / 2;
-    const viewBox = `0 0 ${sqSize} ${sqSize}`;
     const dashArray = radius * Math.PI * 2;
     const dashOffset = dashArray - (dashArray * percentage) / 100;
 
     return (
         <div className={styles.progressContainer}>
-            <svg width={sqSize} height={sqSize} viewBox={viewBox}>
-                <circle
-                    className={styles.circleBackground}
-                    cx={sqSize / 2}
-                    cy={sqSize / 2}
-                    r={radius}
-                    strokeWidth={`${strokeWidth}px`}
-                />
+            <svg width={sqSize} height={sqSize} viewBox={`0 0 ${sqSize} ${sqSize}`}>
+                <circle className={styles.circleBackground} cx={sqSize / 2} cy={sqSize / 2} r={radius} strokeWidth={strokeWidth} />
                 <circle
                     className={styles.circleProgress}
                     cx={sqSize / 2}
                     cy={sqSize / 2}
                     r={radius}
-                    strokeWidth={`${strokeWidth}px`}
+                    strokeWidth={strokeWidth}
                     transform={`rotate(-90 ${sqSize / 2} ${sqSize / 2})`}
-                    style={{
-                        strokeDasharray: dashArray,
-                        strokeDashoffset: dashOffset,
-                    }}
+                    style={{ strokeDasharray: dashArray, strokeDashoffset: dashOffset }}
                 />
             </svg>
             <span className={styles.progressText}>{Math.round(percentage)}%</span>
@@ -139,33 +35,115 @@ const CircularProgress = ({ percentage }) => {
     );
 };
 
-
 const ProjectDetailPage = () => {
+    const { projectid } = useParams();
     const navigate = useNavigate();
+    const { userId } = useAuth();
 
-    const initialTodos = [
-        { id: 1, icon: <BsListTask />, text: "Initial Commit", completed: true },
-        { id: 2, icon: <FaCodeBranch />, text: "Path Changed", completed: true },
-        { id: 3, icon: <FaArrowRight />, text: "Now", completed: true },
-        { id: 4, icon: <FaAngleRight />, text: "Next for exploration ...", completed: false },
-        { id: 5, icon: <FaCircleNotch />, text: "Final Step", completed: false },
-    ];
+    const [projectData, setProjectData] = useState(null);
+    const [todoItems, setTodoItems] = useState([]);
+    const [expandedId, setExpandedId] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [selectedImages, setSelectedImages] = useState([]); // 👈 local image state
+    const [isUploading, setIsUploading] = useState(false); // upload loading state
 
-    const [todoItems, setTodoItems] = useState(initialTodos);
+    const toggleExpand = (id) => setExpandedId(expandedId === id ? null : id);
 
-    const handleTodoToggle = (id) => {
-        setTodoItems(
-            todoItems.map((item) =>
-                item.id === id ? { ...item, completed: !item.completed } : item
-            )
-        );
-    };
+    useEffect(() => {
+        const fetchProject = async () => {
+            try {
+                const response = await axios.get(`http://localhost:3000/api/projects/${projectid}`, {
+                    headers: { userid: userId },
+                });
+                setProjectData(response.data.project);
+                const stepsWithIds = response.data.project.steps.map((step) => ({
+                    ...step,
+                    id: step.id || uuidv4(),
+                }));
+                setTodoItems(stepsWithIds);
+            } catch (error) {
+                console.error("Error fetching project data:", error);
+            }
+        };
+        fetchProject();
+    }, [projectid, userId]);
 
     const completionPercentage = useMemo(() => {
-        const completedCount = todoItems.filter((item) => item.completed).length;
-        return (completedCount / todoItems.length) * 100;
+        if (todoItems.length === 0) return 0;
+        const completed = todoItems.filter((i) => i.completed).length;
+        return (completed / todoItems.length) * 100;
     }, [todoItems]);
 
+    const handleTodoToggle = async (id) => {
+        const updated = todoItems.map((i) =>
+            i.id === id ? { ...i, completed: !i.completed } : i
+        );
+        setTodoItems(updated);
+        const completedCount = updated.filter((i) => i.completed).length;
+        const progress = (completedCount / updated.length) * 100;
+
+        try {
+            await axios.put(`http://localhost:3000/api/projects/${projectid}/steps/update`, {
+                steps: updated.map((i) => ({
+                    step_number: i.step_number,
+                    step_title: i.step_title,
+                    implementation_details: i.implementation_details,
+                    completed: i.completed,
+                    resources: i.resources || [],
+                })),
+                progress,
+            });
+        } catch (error) {
+            console.error("Failed to update progress:", error);
+        }
+    };
+
+    // 👇 Handle image selection
+    // 👇 Handle image selection with max limit
+    const handleImageChange = (e) => {
+        const files = Array.from(e.target.files);
+
+        // Determine remaining slots
+        const existingCount = projectData?.images?.length || 0;
+        const remainingSlots = 5 - existingCount;
+
+        if (files.length > remainingSlots) {
+            alert(`You can only upload ${remainingSlots} more image(s).`);
+            setSelectedImages(files.slice(0, remainingSlots));
+        } else {
+            setSelectedImages(files);
+        }
+    };
+
+
+    // 👇 Upload to backend (Cloudinary)
+    const handleImageUpload = async () => {
+        if (selectedImages.length === 0) return alert("No images selected!");
+        setIsUploading(true);
+
+        const formData = new FormData();
+        selectedImages.forEach((img) => formData.append("images", img));
+
+        try {
+            const response = await axios.post(
+                `http://localhost:3000/api/projects/${projectid}/upload-images`,
+                formData,
+                { headers: { "Content-Type": "multipart/form-data" } }
+            );
+
+            // update UI with new image URLs
+            setProjectData((prev) => ({
+                ...prev,
+                images: [...(prev.images || []), ...response.data.images],
+            }));
+            setSelectedImages([]);
+        } catch (error) {
+            console.error("Upload failed:", error);
+            alert("Failed to upload images.");
+        } finally {
+            setIsUploading(false);
+        }
+    };
 
     return (
         <div className={styles.dashboard}>
@@ -179,60 +157,134 @@ const ProjectDetailPage = () => {
 
                 <div className={styles.contentGrid}>
                     <div className={styles.leftColumn}>
-                        {/* Enhanced Description Card */}
+                        {/* Description Card */}
                         <div className={`${styles.card} ${styles.descriptionCard}`}>
-                            <div className={styles.descriptionSection}>
-                                <div className={styles.sectionHeader}>
-                                    <FaRegLightbulb className={styles.sectionIcon} />
-                                    <h3>Project Description</h3>
+                            <div className={styles.sectionHeader}>
+                                <FaRegLightbulb className={styles.sectionIcon} />
+                                <h3>Project Description</h3>
+                            </div>
+                            <p>{projectData?.description || "No description."}</p>
+
+                            <div className={styles.sectionHeader}>
+                                <FaTools className={styles.sectionIcon} />
+                                <h3>Technology Stack</h3>
+                            </div>
+                            <div className={styles.techStack}>
+                                {projectData?.stack?.length ? (
+                                    projectData.stack.map((tech, i) => (
+                                        <span key={i} className={styles.techBadge}>
+                                            {tech}
+                                        </span>
+                                    ))
+                                ) : (
+                                    <span>No tech specified.</span>
+                                )}
+                            </div>
+
+                            <div className={styles.sectionHeader}>
+                                <FaBullseye className={styles.sectionIcon} />
+                                <h3>Tags</h3>
+                            </div>
+                            <ul>
+                                {projectData?.tags?.length
+                                    ? projectData.tags.map((t, i) => <li key={i}>{t}</li>)
+                                    : "No tags."}
+                            </ul>
+
+                            {/* 🖼️ Image Upload Section */}
+                            <div className={styles.sectionHeader}>
+                                <FaCloudUploadAlt className={styles.sectionIcon} />
+                                <h3>Project Images</h3>
+                            </div>
+
+                            <div className={styles.imageGrid}>
+                                {projectData?.images?.map((url, i) => (
+                                    <img key={i} src={url} alt={`Project ${i}`} className={styles.imagePreview} />
+                                ))}
+                            </div>
+
+                            <div className={styles.imageUploadSection}>
+                                <div className="flex items-center gap-3">
+                                    {/* Choose Images */}
+                                    <label
+                                        htmlFor="images"
+                                        className="px-4 py-2 bg-blue-500 text-white rounded-lg cursor-pointer hover:bg-blue-600 transition"
+                                    >
+                                        Choose Images
+                                    </label>
+                                    <input
+                                        id="images"
+                                        type="file"
+                                        multiple
+                                        accept="image/*"
+                                        onChange={handleImageChange}
+                                        className="hidden"
+                                    />
+
+                                    {/* Upload Button */}
+                                    <button
+                                        onClick={handleImageUpload}
+                                        disabled={isUploading || selectedImages.length === 0}
+                                        className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition disabled:opacity-50"
+                                    >
+                                        {isUploading ? "Uploading..." : "Upload"}
+                                    </button>
                                 </div>
-                                <p>
-                                    A detailed description of the project goes here. It explains the purpose,
-                                    target audience, and the core functionalities of the application.
+
+                                {/* Helper text */}
+                                <p className="text-xs text-gray-500 mt-1">
+                                    PNG, JPG, or WEBP (max 5MB each). You can upload {5 - (projectData?.images?.length || 0)} more.
                                 </p>
                             </div>
-                            <div className={styles.descriptionSection}>
-                                <div className={styles.sectionHeader}>
-                                    <FaTools className={styles.sectionIcon} />
-                                    <h3>Technology Stack</h3>
-                                </div>
-                                <div className={styles.techStack}>
-                                    <span>React</span>
-                                    <span>Node.js</span>
-                                    <span>MongoDB</span>
-                                    <span>CSS Modules</span>
-                                </div>
-                            </div>
-                            <div className={styles.descriptionSection}>
-                                <div className={styles.sectionHeader}>
-                                    <FaBullseye className={styles.sectionIcon} />
-                                    <h3>Project Goals</h3>
-                                </div>
-                                <ul className={styles.goalsList}>
-                                    <li>Develop a responsive and intuitive user interface.</li>
-                                    <li>Ensure seamless data flow between front-end and back-end.</li>
-                                    <li>Implement robust user authentication and authorization.</li>
-                                </ul>
-                            </div>
+
+                            {/* Show uploaded images */}
                         </div>
 
+                        {/* Steps Section */}
                         <div className={`${styles.card} ${styles.todoCard}`}>
-                            <h3>Steps to Complete the Project</h3>
-                            <ul className={styles.todoList}>
-                                {todoItems.map((item) => (
-                                    <li
-                                        key={item.id}
-                                        className={`${styles.todoItem} ${item.completed ? styles.completed : ''}`}
-                                        onClick={() => handleTodoToggle(item.id)}
-                                    >
-                                        <div className={styles.todoCheckbox}>
-                                            {item.completed && <span>&#10003;</span>}
-                                        </div>
-                                        <div className={styles.todoIcon}>{item.icon}</div>
-                                        <span>{item.text}</span>
-                                    </li>
-                                ))}
-                            </ul>
+                            <div className={styles.sectionHeader}>
+                                <FaListUl className={styles.sectionIcon} />
+                                <h3>Steps to Complete</h3>
+                            </div>
+
+                            {todoItems.length === 0 ? (
+                                <button className={styles.generateButton} onClick={() => alert("Generate steps API soon!")}>
+                                    Generate Steps
+                                </button>
+                            ) : (
+                                <ul className={styles.todoList}>
+                                    {todoItems.map((item) => (
+                                        <li
+                                            key={item.id}
+                                            className={`${styles.todoItem} ${item.completed ? styles.completed : ""}`}
+                                        >
+                                            <div className={styles.todoHeader}>
+                                                <div
+                                                    className={styles.todoMain}
+                                                    onClick={() => handleTodoToggle(item.id)}
+                                                >
+                                                    <div className={styles.todoCheckbox}>
+                                                        {item.completed && <span>&#10003;</span>}
+                                                    </div>
+                                                    <span>{item.step_title}</span>
+                                                </div>
+                                                <button
+                                                    className={styles.expandBtn}
+                                                    onClick={() => toggleExpand(item.id)}
+                                                >
+                                                    {expandedId === item.id ? <FaChevronUp /> : <FaChevronDown />}
+                                                </button>
+                                            </div>
+
+                                            {expandedId === item.id && (
+                                                <div className={styles.todoDescription}>
+                                                    {item.implementation_details || "No details."}
+                                                </div>
+                                            )}
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
                         </div>
                     </div>
 

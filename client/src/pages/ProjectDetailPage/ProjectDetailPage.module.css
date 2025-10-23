@@ -218,4 +218,112 @@
     stroke-linecap: round;
     stroke-linejoin: round;
     transition: stroke-dashoffset 0.5s ease-out;
-}   
+}
+
+.generateButton {
+    margin-top: 25px;
+    padding: 12px 25px;
+    background-color: var(--primary-blue);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+/* ---------- Todo Item Header ---------- */
+.todoHeader {
+    display: flex;
+    flex-direction: column; /* Stack title + description vertically */
+    width: 100%;
+}
+
+.todoTitleRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer; /* Make entire row clickable for checkbox toggle */
+}
+
+.todoMain {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+/* Expand / Collapse Button */
+.expandBtn {
+    background: none;
+    border: none;
+    color: #bdc3c7;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
+}
+
+.expandBtn:hover {
+    color: var(--primary-blue);
+}
+
+/* Description of the todo step */
+.todoDescription {
+    margin-top: 8px;           /* Space below the title */
+    padding: 8px 12px 8px 40px; /* Add padding for readability and align with checkbox */
+    font-size: 0.95rem;
+    color: #f0f0f0;            /* Light text color for readability */
+    line-height: 1.5;
+    background-color: #2c3e50; /* Slight dark background */
+    border-left: 3px solid #3498db; /* Highlight with blue left border */
+    border-radius: 4px;        /* Slight rounding */
+}
+
+.imageUploadSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-top: 1.5rem;
+}
+
+.uploadBtn {
+  background-color: #3498db;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.95rem;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+  transition: all 0.25s ease;
+}
+
+.uploadBtn:hover {
+  background-color: #2e86c1;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+}
+
+.imageGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 2 images per row */
+  gap: 10px; /* spacing between images */
+  margin-top: 1rem;
+}
+
+.imagePreview {
+  width: 100%;
+  height: 280px; /* Reduced from 300px for better proportion */
+  object-fit: cover;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.imagePreview:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
