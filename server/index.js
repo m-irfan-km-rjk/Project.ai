@@ -93,6 +93,11 @@ app.post('/api/generate-ideas', async (req, res) => {
         type: "string",
         enum: ["Easy", "Medium", "Hard"]
       },
+      stack: {
+        type: "array",
+        items: { type: "string" },
+        maxItems: 4,
+      },
       tags: {
         type: "array",
         items: { type: "string" },
