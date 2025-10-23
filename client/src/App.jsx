@@ -5,6 +5,8 @@ import RegisterPage from "./pages/RegisterPage/RegisterPage";
 import GenerateIdeaPage from "./pages/GenerateIdeaPage/GenerateIdeaPage";
 import MyProjectsPage from "./pages/MyProjectspage/MyProjectPage";
 import ProjectDetailPage from "./pages/ProjectDetailPage/ProjectDetailPage";
+import ProfilePage from "./pages/ProfilePage/ProfilePage";
+import ChangePasswordPage from "./pages/ChangePasswordPage/ChangePasswordPage";
 import './App.css';
 
 function App() {
@@ -18,7 +20,9 @@ function App() {
       {/* NOTE: This is a static route for now. You can change it to a dynamic 
         route like "/projects/:id" when you are fetching specific project data.
       */}
-      <Route path="/project-detail" element={<ProjectDetailPage />} />
+      <Route path="/profile" element={<ProfilePage />} />
+      <Route path="/project/:id" element={<ProjectDetailPage />} />
+      <Route path="/change-password" element={<ChangePasswordPage />} />
       <Route path="*" element={<h2>404: Page Not Found</h2>} />
     </Routes>
   );
