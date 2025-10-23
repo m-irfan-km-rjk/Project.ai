@@ -39,7 +39,7 @@ const AIResponse = ({ ideas, onIdeaSelect, onRegenerate }) => {
                         <p className={styles.ideaDescription}>{idea.description}</p>
                         <div className={styles.ideaDetails}>
                             <div className={styles.stack}>
-                                <strong>Stack:</strong> {idea.stack.join(", ")}
+                                <strong>Stack:</strong> {idea.tags.join(", ")}
                             </div>
                             <div className={styles.tags}>
                                 {idea.tags.map(tag => <span key={tag} className={styles.tag}>{tag}</span>)}
@@ -62,7 +62,7 @@ const GenerateIdeaPage = () => {
     const navigate = useNavigate();
     const userName = "Alex"; // This can be replaced with actual user data later
 
-    const showWelcomeMessage = ideas.length === 0 && !isLoading;
+    const showWelcomeMessage = (ideas.length === 0 && !isLoading);
 
     // --- MODIFIED handleGenerate function ---
     const handleGenerate = async () => {
@@ -73,7 +73,7 @@ const GenerateIdeaPage = () => {
             // Make API call to your backend
             const response = await axios.post('http://localhost:3000/api/generate-ideas', { prompt });
             // The backend returns an object with a key, assuming it's "project_ideas"
-            setIdeas(response.data.project_ideas); 
+            setIdeas(response.data); 
         } catch (error) {
             console.error("Error generating ideas:", error);
             // Optionally, show an error message to the user
@@ -134,26 +134,11 @@ const GenerateIdeaPage = () => {
             </div>
           </div>
         ) : (
-          <div className={styles.ideasContainer}>
-            <h2>Entered Prompt: {prompt}</h2>
-            <div className={styles.ideasBox}>
-              <h3>List of Ideas to Select</h3>
-              <ul>
-                {ideas.map((idea, index) => (
-                  <li key={index}>{idea.title}</li>
-                ))}
-              </ul>
-              <button
-                onClick={() => {
-                  setIdeas([]);
-                  setPrompt("");
-                }}
-                className={styles.resetButton}
-              >
-                Generate Again
-              </button>
-            </div>
-          </div>
+          <AIResponse
+            ideas={ideas}
+            onIdeaSelect={handleIdeaSelect}
+            onRegenerate={handleStartOver}
+          />
         )}
       </main>
     </div>
