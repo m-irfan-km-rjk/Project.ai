@@ -3,7 +3,11 @@ import { useNavigate } from "react-router-dom";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import styles from "./GenerateIdeaPage.module.css";
 import axios from "axios"; // Import axios
+<<<<<<< Updated upstream
 import { FaArrowUp, FaLightbulb } from "react-icons/fa";
+=======
+import { FaArrowUp } from "react-icons/fa";
+>>>>>>> Stashed changes
 
 // --- SVG Icons (no changes here) ---
 const ArrowUpIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"><path d="M12 4L4 12h5v6h6v-6h5L12 4z" /></svg>);
