@@ -118,7 +118,6 @@ app.post('/api/generate-ideas', async (req, res) => {
     res.json(JSON.parse(response.data.candidates[0].content.parts[0].text));
   } catch (error) {
     console.error('Error fetching from Gemini API:', error);
-    next(error);
   }
 });
 
