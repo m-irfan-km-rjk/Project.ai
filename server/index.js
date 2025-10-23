@@ -341,6 +341,28 @@ app.post("/api/projects/:projectId/steps/add", async (req, res, next) => {
   }
 });
 
+app.get("/api/users/:userId", async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        status: "error",
+        type: "not_found",
+        message: "User not found"
+      });
+    }
+    res.json({
+      name: user.username,
+      email: user.email,
+      projectCount: user.projects.length,
+      profilePic: user.profilePic || ""
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

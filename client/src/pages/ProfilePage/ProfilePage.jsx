@@ -1,19 +1,35 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Sidebar from '../../components/Sidebar/Sidebar';
 import styles from './ProfilePage.module.css';
 import { FaUserCircle, FaLock, FaProjectDiagram, FaSignOutAlt } from 'react-icons/fa';
+import { useState } from 'react';
+import axios from 'axios';
+import { useAuth } from '../../hooks/AuthContext';
 
 const ProfilePage = () => {
     const navigate = useNavigate();
-    
-    // Dummy data
-    const userData = {
-        name: 'Alex Doe',
-        email: 'alex.doe@example.com',
-        projectCount: 7,
-        profilePic: ''
-    };
+    const { userId } = useAuth();
+    const [userData, setUserData] = useState( null);
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                const response = await axios.get(`http://localhost:3000/api/users/${userId}`);
+                setUserData(response.data);
+            } catch (error) {
+                console.error("Error fetching user data:", error);
+            }
+        };
+
+        if (userId) {
+            fetchUserData();
+        }
+    }, []);
+
+    if (!userData) {
+        return <div>Loading...</div>;
+    }
 
     const handleLogout = () => {
         console.log("User logged out");
