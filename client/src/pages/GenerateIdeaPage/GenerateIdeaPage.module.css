@@ -138,13 +138,14 @@
 
 
 .resetButton {
-    background: none;
-    border: 1px solid var(--primary-blue);
-    color: var(--primary-blue);
+    font-size: 19px;
+    background: var(--primary-blue);
+    border: 1px solid var(--background-dark-accent);
+    color: var(--background-dark);
     padding: 8px 16px;
     border-radius: 20px;
     cursor: pointer;
-    margin-top: 20px;
+    margin:20px 0px;
     transition: background-color 0.3s, color 0.3s;
 }
 

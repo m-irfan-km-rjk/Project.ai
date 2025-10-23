@@ -7,6 +7,8 @@
     padding: 40px;
     height: 100vh;
     overflow-y: auto;
+    margin-left: 200px; /* <-- Added this */
+    width: calc(100% - 200px); /* <-- Added this */
 }
 
 .mainContent h2 {
