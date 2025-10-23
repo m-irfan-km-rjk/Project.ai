@@ -8,9 +8,11 @@ import ProjectDetailPage from "./pages/ProjectDetailPage/ProjectDetailPage";
 import ProfilePage from "./pages/ProfilePage/ProfilePage";
 import ChangePasswordPage from "./pages/ChangePasswordPage/ChangePasswordPage";
 import './App.css';
+import { AuthProvider } from "./hooks/AuthContext";
 
 function App() {
   return (
+    <AuthProvider>
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<LoginPage />} />
@@ -25,6 +27,7 @@ function App() {
       <Route path="/change-password" element={<ChangePasswordPage />} />
       <Route path="*" element={<h2>404: Page Not Found</h2>} />
     </Routes>
+    </AuthProvider>
   );
 }
 
