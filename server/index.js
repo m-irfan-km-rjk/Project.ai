@@ -48,11 +48,11 @@ const PORT = process.env.PORT || 3000;
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('MongoDB connected'))
-  .catch(err => next(err));
+  .catch(err => console.error('MongoDB connection error:', err));
 
 const userSchema = joi.object({
   username: joi.string().alphanum().min(5).max(30).required(),
-  password: joi.string().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')).required(),
+  password: joi.string().pattern(new RegExp('^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{6,}$')).required(),
   email: joi.string().email().required(),
   phone: joi.string().pattern(new RegExp('^[0-9]{10}$')).required()
 });
@@ -76,12 +76,32 @@ app.post('/api/generate-ideas', async (req, res) => {
         {
           role: "user",
           parts: [
-            { text: `Generate 5 unique and creative project ideas based on the following prompt: "${prompt}". Each idea should be concise, engaging, and suitable for a tech-savvy audience. Provide the ideas in a numbered list.` }
+            { text: `Generate 5 unique and creative project ideas based on the following prompt: "${prompt}". Each idea should be concise, engaging, and suitable for a tech-savvy audience. Provide the ideas in a numbered list. 4 Tags only.` }
           ]
         }
       ],
       generationConfig: {
-        response_mime_type: "application/json"
+        response_mime_type: "application/json",
+        responseSchema: {
+  type: "array",
+  items: {
+    type: "object",
+    properties: {
+      title: { type: "string" },
+      description: { type: "string" },
+      difficulty: { 
+        type: "string",
+        enum: ["Easy", "Medium", "Hard"]
+      },
+      tags: {
+        type: "array",
+        items: { type: "string" },
+        maxItems: 4,
+      }
+    },
+    required: ["title", "description", "difficulty", "tags"]
+  }
+}
       }
     }
       , {

@@ -122,18 +122,21 @@ const GenerateIdeaPage = () => {
           <div className={styles.ideasContainer}>
             <h2>Entered Prompt: {prompt}</h2>
             <div className={styles.ideasBox}>
-              <h3>List of Ideas to Select</h3>
-              <ul>
+              <h1>List of Ideas to Select</h1>
                 {ideas.map((idea, index) => (
-                  <li key={index}>{idea.title}</li>
+                  <div key={index} className={styles.ideaCard}>
+                    <h4>{index + 1}. {idea.title}</h4>
+                    <p>{idea.description}</p>
+                    <p><strong>Difficulty:</strong> {idea.difficulty}</p>
+                    <p><strong>Tags:</strong> {idea.tags.join(', ')}</p>
+                  </div>
                 ))}
-              </ul>
               <button
                 onClick={() => {
                   setIdeas([]);
                   setPrompt("");
                 }}
-                className={styles.resetButton}
+                className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded mt-4"
               >
                 Generate Again
               </button>
