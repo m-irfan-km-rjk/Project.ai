@@ -189,7 +189,11 @@ Organize the steps sequentially, ensuring clarity for someone who wants to imple
     console.log("Steps generated successfully");
   } catch (error) {
     console.error('Error fetching from Gemini API:', error);
-    next(error);
+    res.status(500).json({
+      status: "error",
+      message: "Failed to generate project steps",
+      error: error.message
+    });
   }
 });
 
@@ -214,7 +218,7 @@ app.post("/api/login", async (req, res, next) => {
     res.json({ success: true, message: "Login successful", userId: user._id });
   } catch (err) {
     console.error("Login error:", err);
-    next(err); // pass to centralized error handler
+    res.status(500).json({ success: false, message: "Login failed", error: err.message });
   }
 });
 
@@ -229,7 +233,7 @@ app.post("/api/register", validateBody(userSchema), async (req, res, next) => {
 
     res.json({ success: true, message: "User registered successfully", userId: newUser._id });
   } catch (err) {
-    next(err);
+    res.status(500).json({ success: false, message: "Registration failed", error: err.message });
   }
 });
 
@@ -259,7 +263,11 @@ app.post("/api/projects/create", async (req, res, next) => {
     });
 
   } catch (err) {
-    next(err);
+    res.status(500).json({
+      status: "error",
+      message: "Project creation failed",
+      error: err.message
+    });
   }
 });
 
@@ -315,7 +323,11 @@ app.post(
         images: imageUrls,
       });
     } catch (err) {
-      next(err);
+      res.status(500).json({
+        status: "error",
+        message: "Image upload failed",
+        error: err.message,
+      });
     }
   }
 );
@@ -336,7 +348,11 @@ app.get("/api/user/projects", async (req, res, next) => {
       projects: user.projects
     });
   } catch (err) {
-    next(err);
+    res.status(500).json({
+      status: "error",
+      message: "Failed to fetch projects",
+      error: err.message
+    });
   }
 });
 
@@ -391,7 +407,11 @@ app.get("/api/projects/:projectId", async (req, res, next) => {
       project
     });
   } catch (err) {
-    next(err);
+    res.status(500).json({
+      status: "error",
+      message: "Failed to fetch project",
+      error: err.message
+    });
   }
 });
 
@@ -438,7 +458,11 @@ app.post("/api/projects/:projectId/steps/add", async (req, res, next) => {
       steps: newSteps
     });
   } catch (err) {
-    next(err);
+    res.status(500).json({
+      status: "error",
+      message: "Failed to add steps",
+      error: err.message
+    });
   }
 });
 
@@ -460,7 +484,11 @@ app.get("/api/users/:userId", async (req, res, next) => {
       profilePic: user.profilePic || ""
     });
   } catch (err) {
-    next(err);
+    res.status(500).json({
+      status: "error",
+      message: "Error fetching user data",
+      error: err.message
+    });
   }
 });
 
@@ -498,7 +526,11 @@ app.put("/api/projects/:projectId/steps/update", async (req, res, next) => {
             progress: project.progress
         });
     } catch (err) {
-        next(err);
+        res.status(500).json({
+            status: "error",
+            message: "Failed to update project steps",
+            error: err.message
+        });
     }
 });
 
@@ -532,6 +564,10 @@ app.put("/api/users/:userId/change-password", async (req, res, next) => {
       message: "Password changed successfully"
     });
   } catch (err) {
-    next(err);
+    res.status(500).json({
+      status: "error",
+      message: "Failed to change password",
+      error: err.message
+    });
   }
 });
