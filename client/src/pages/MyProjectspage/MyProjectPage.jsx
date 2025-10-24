@@ -83,7 +83,7 @@ const MyProjectsPage = () => {
                             title={project.title}
                             description={project.description}
                             status={project.status}
-                            progress={project.progress}
+                            progress={Math.floor(project.progress)}
                             // FIX: Provide a default empty array if tags are missing
                             tags={project.tags || []}
                         />
