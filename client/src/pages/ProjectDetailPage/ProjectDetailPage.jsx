@@ -52,7 +52,7 @@ const ProjectDetailPage = () => {
     useEffect(() => {
         const fetchProject = async () => {
             try {
-                const response = await axios.get(`http://localhost:3000/api/projects/${projectid}`, {
+                const response = await axios.get(`https://projectai-morw.onrender.com/api/projects/${projectid}`, {
                     headers: { userid: userId },
                 });
                 setProjectData(response.data.project);
@@ -83,7 +83,7 @@ const ProjectDetailPage = () => {
         const progress = (completedCount / updated.length) * 100;
 
         try {
-            await axios.put(`http://localhost:3000/api/projects/${projectid}/steps/update`, {
+            await axios.put(`https://projectai-morw.onrender.com/api/projects/${projectid}/steps/update`, {
                 steps: updated.map((i) => ({
                     step_number: i.step_number,
                     step_title: i.step_title,
@@ -126,7 +126,7 @@ const ProjectDetailPage = () => {
 
         try {
             const response = await axios.post(
-                `http://localhost:3000/api/projects/${projectid}/upload-images`,
+                `https://projectai-morw.onrender.com/api/projects/${projectid}/upload-images`,
                 formData,
                 { headers: { "Content-Type": "multipart/form-data" } }
             );
@@ -144,6 +144,39 @@ const ProjectDetailPage = () => {
             setIsUploading(false);
         }
     };
+
+    const handleGenerateSteps = async () => {
+    if (!projectData) return;
+    setIsLoading(true);
+
+    try {
+      const response = await axios.post("https://projectai-morw.onrender.com/api/idea", {
+        prompt: projectData,
+      });
+
+      const steps = response.data;
+
+      const formattedSteps = steps.map((step) => ({
+        id: uuidv4(), // Unique key for React
+        step_number: step.step_number,
+        step_title: step.step_title,
+        implementation_details: step.implementation_details,
+        completed: false,
+      }));
+
+      await axios.post(
+        `https://projectai-morw.onrender.com/api/projects/${projectid}/steps/add`,
+        formattedSteps
+      );
+
+      setTodoItems(formattedSteps);
+    } catch (error) {
+      console.error("Error generating or saving steps:", error);
+      alert("Failed to generate or save steps. Please try again later.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
     return (
         <div className={styles.dashboard}>
@@ -242,16 +275,20 @@ const ProjectDetailPage = () => {
 
                         {/* Steps Section */}
                         <div className={`${styles.card} ${styles.todoCard}`}>
-                            <div className={styles.sectionHeader}>
-                                <FaListUl className={styles.sectionIcon} />
-                                <h3>Steps to Complete</h3>
-                            </div>
+              <div className={styles.sectionHeader}>
+                <FaListUl className={styles.sectionIcon} />
+                <h3>Steps to Complete the Project</h3>
+              </div>
 
-                            {todoItems.length === 0 ? (
-                                <button className={styles.generateButton} onClick={() => alert("Generate steps API soon!")}>
-                                    Generate Steps
-                                </button>
-                            ) : (
+              {todoItems.length === 0 ? (
+                <button
+                  className={styles.generateButton}
+                  onClick={handleGenerateSteps}
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Generating..." : "Generate Steps"}
+                </button>
+              ) : (
                                 <ul className={styles.todoList}>
                                     {todoItems.map((item) => (
                                         <li

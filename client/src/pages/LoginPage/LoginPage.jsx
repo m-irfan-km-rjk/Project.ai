@@ -14,7 +14,7 @@ const LoginPage = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
         
-        axios.post('http://localhost:3000/api/login', { username, password })
+        axios.post('https://projectai-morw.onrender.com/api/login', { username, password })
             .then(response => {
                 if (response.data.success) {
                     setUserId(response.data.userId);

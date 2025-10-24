@@ -15,7 +15,7 @@ const ProfilePage = () => {
     useEffect(() => {
         const fetchUserData = async () => {
             try {
-                const response = await axios.get(`http://localhost:3000/api/users/${userId}`);
+                const response = await axios.get(`https://projectai-morw.onrender.com/api/users/${userId}`);
                 setUserData(response.data);
             } catch (error) {
                 console.error("Error fetching user data:", error);

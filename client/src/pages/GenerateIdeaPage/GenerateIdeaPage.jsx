@@ -72,7 +72,7 @@ const GenerateIdeaPage = () => {
 
         try {
             // Make API call to your backend
-            const response = await axios.post('http://localhost:3000/api/generate-ideas', { prompt });
+            const response = await axios.post('https://projectai-morw.onrender.com/api/generate-ideas', { prompt });
             // The backend returns an object with a key, assuming it's "project_ideas"
             setIdeas(response.data); 
         } catch (error) {
@@ -86,7 +86,7 @@ const GenerateIdeaPage = () => {
 
     const handleIdeaSelect = (idea) => {
         
-        axios.post('http://localhost:3000/api/projects/create', {
+        axios.post('https://projectai-morw.onrender.com/api/projects/create', {
             title: idea.title,
             description: idea.description,
             userId: userId,

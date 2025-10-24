@@ -57,7 +57,7 @@ const MyProjectsPage = () => {
 
     // This effect runs once when the component mounts to check for a new project
     useEffect(() => {
-        axios.get("http://localhost:3000/api/user/projects/", {
+        axios.get("https://projectai-morw.onrender.com/api/user/projects/", {
             headers: {
                 userid: userId,
             },

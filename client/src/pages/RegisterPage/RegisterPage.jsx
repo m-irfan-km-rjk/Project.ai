@@ -30,7 +30,7 @@ const RegisterPage = () => {
     if (password !== confirmPassword) return; // Prevent if mismatch
 
     // TODO: Implement registration logic
-    axios.post('http://localhost:3000/api/register', { username, password, email, phone })
+    axios.post('https://projectai-morw.onrender.com/api/register', { username, password, email, phone })
       .then(response => {
         if (response.data.success) {
           setUserId(response.data.userId);

@@ -3,8 +3,11 @@ import { Link } from 'react-router-dom';
 import Sidebar from '../../components/Sidebar/Sidebar';
 import styles from './ChangePasswordPage.module.css';
 import { FaLock, FaArrowLeft } from 'react-icons/fa';
+import axios from 'axios';
+import { useAuth } from "../../hooks/AuthContext";
 
 const ChangePasswordPage = () => {
+    const { userId } = useAuth();
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -12,15 +15,23 @@ const ChangePasswordPage = () => {
     const handlePasswordChange = (e) => {
         e.preventDefault();
         if (newPassword !== confirmPassword) {
-            alert("New passwords do not match.");
+            alert('New passwords do not match!');
             return;
         }
-        // Add your password change logic here
-        console.log('Changing password...');
-        alert('Password changed successfully! (simulation)');
-        setCurrentPassword('');
-        setNewPassword('');
-        setConfirmPassword('');
+        axios.put(`https://projectai-morw.onrender.com/api/users/${userId}/change-password`, {
+            oldPassword : currentPassword,
+            newPassword
+        })
+        .then(response => {
+            alert('Password changed successfully!');
+            setCurrentPassword('');
+            setNewPassword('');
+            setConfirmPassword('');
+        })
+        .catch(error => {
+            alert('Error changing password: ' + error.response.data.message);
+        });
+        
     };
 
     return (

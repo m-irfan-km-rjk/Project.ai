@@ -61,7 +61,7 @@ mongoose.connect(process.env.MONGO_URI)
 
 const userSchema = joi.object({
   username: joi.string().alphanum().min(5).max(30).required(),
-  password: joi.string().pattern(new RegExp('^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{6,}$')).required(),
+  password: joi.string().pattern(new RegExp(/^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{6,}$/)).required(),
   email: joi.string().email().required(),
   phone: joi.string().pattern(new RegExp('^[0-9]{10}$')).required()
 });
@@ -500,4 +500,38 @@ app.put("/api/projects/:projectId/steps/update", async (req, res, next) => {
     } catch (err) {
         next(err);
     }
+});
+
+
+//Change password route
+app.put("/api/users/:userId/change-password", async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+    const { oldPassword, newPassword } = req.body;
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        status: "error",
+        type: "not_found",
+        message: "User not found"
+      });
+    }
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
+      return res.status(401).json({
+        status: "error",
+        type: "unauthorized",
+        message: "Old password is incorrect"
+      });
+    }
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedNewPassword;
+    await user.save();
+    res.json({
+      status: "success",
+      message: "Password changed successfully"
+    });
+  } catch (err) {
+    next(err);
+  }
 });
